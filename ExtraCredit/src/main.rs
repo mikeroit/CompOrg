@@ -3,13 +3,13 @@
 use std::env;
 
 // STRUCT -------------------------------------------------------------
-struct input_obj
+#[derive(Debug)]
+struct InputObj
 {
-    m_value: i32,
     m_type: input_type,
     m_src: String
 }
-impl input_obj
+impl InputObj
 {
 }
 // -------------------------------------------------------------------
@@ -33,16 +33,15 @@ enum input_type
 
 // FUNCS -------------------------------------------------------------
 // function to parse input
-fn parse_input(input: String) -> input_obj
+fn parse_input(input: String) -> InputObj
 {
     let mut head_0: char = '#';
     let mut head_1: char = '#';
     let mut needToResetSrc: bool = false;
 
     //set up a return value
-    let mut res: input_obj = input_obj
+    let mut res: InputObj = InputObj
     {
-        m_value: -1,
         m_type: input_type::ERR,
         m_src: String::new()
     };
@@ -103,9 +102,7 @@ fn parse_input(input: String) -> input_obj
         {res.m_src.push(input.chars().nth(n).unwrap());}
     }
 
-    println!("{}", res.m_src);
-    println!("{:?}", (res.m_type));
-
+    // return
     res
 }
 // -------------------------------------------------------------------
@@ -116,9 +113,9 @@ fn parse_input(input: String) -> input_obj
 fn main() 
 {
     // grab input
-    let input = std::env::args().nth(1).unwrap();
+    let input: InputObj = parse_input(std::env::args().nth(1).unwrap());
 
-    parse_input(input);
+    println!("{:?}", input);
 }
 // -------------------------------------------------------------------
 
