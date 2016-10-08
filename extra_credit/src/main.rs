@@ -405,10 +405,12 @@ fn int_to_single_precision(num: &f32) -> String
 
     let mut remainder: f32 = *num;
 
-    while remainder != 0 
+    while remainder != 0.0 
     {
-        res.push(remainder & 1);
     }
+
+    //who likes compile time errors anyway
+    String::new()
 
 }
 // -------------------------------------------------------------------
