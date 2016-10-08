@@ -1,0 +1,32 @@
+Staging: 3 Nights
+    Install of Arch 13
+    Desktop 8
+    Vim 5
+    Rust 5
+    Git/Util 3
+    Assignment 2
+    Hello World 1
+
+Input: 1 Night
+    define how input is given from user, parse into  computer memory
+        read header 3
+        read rest of input body 3
+
+Processing:
+    read number into memory 13
+    mem -> bin 5
+    mem -> hex 5
+    mem -> int 2
+    mem -> flt 2
+
+Output:
+    Based on input, decide which output functions to call 5
+    UX function 8
+
+    
+Cleanup:
+    Cargo clean file 2
+    README.md 3
+    Email to Ruth
+
+
