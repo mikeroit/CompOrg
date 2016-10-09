@@ -117,7 +117,7 @@ fn parse_input(input: String) -> InputObj
 
 // funtion to take a parsed input object and read the value to memory
 #[allow(dead_code)]
-fn extract_value(input: InputObj) -> f32
+fn extract_value(input: &InputObj) -> f32
 {
     let mut res: f32 = 0.0;
     let chars_slice: &str  = &input.m_src;
@@ -164,7 +164,6 @@ fn extract_value(input: InputObj) -> f32
         {
             while let Some(c) = chars.next()
             {
-                println!("{}", res);
                 match c 
                 {
                     'a' => 
@@ -235,8 +234,13 @@ fn extract_value(input: InputObj) -> f32
                         res += 9.0 * exponentiate(16, count);
                     }
 
-                    _ => {println!("Only use cpas for hex");}
+                    _ => 
+                    {
+                        println!("Do not use caps for hex");
+                        std::process::exit(0);
+                    }
                 }
+                
                 count = count + 1;
             }
         }
@@ -396,24 +400,78 @@ fn int_to_hex(num: &i32) -> String
 
 // function to decode a number int a string representation 
 // in single precision floating point notation
-fn int_to_single_precision(num: &f32) -> String
+fn float_to_single_precision(num: &f32) -> String
 {
-    // declare something to return
-    let mut res: String = String::from("");
 
-    //lucky for us, rust uses single precision for f32 types :D
+    // this will be needed for the exponent
+    let offset = 127;
 
-    let mut remainder: f32 = *num;
-
-    while remainder != 0.0 
+    // calculate what the exponent will need to be
+    let mut fp_exponent: i32 = 0;
+    loop
     {
+        if exponentiate(2, fp_exponent) > *num
+        {
+            break;
+        }
+        fp_exponent += 1
+    }
+    fp_exponent -= 1;
+
+    //calculate what the mantisa is
+    let mut fp_mantisa: String = String::new();
+    let mut temp_mant = *num/exponentiate(2, fp_exponent);
+    assert!(temp_mant >= 1.0 && temp_mant < 2.0);
+    temp_mant -= 1.0;
+
+    for i in 0..24
+    {
+        temp_mant *= 2.0;
+        if temp_mant > 0.0 
+        {
+            fp_mantisa.push('1');
+            temp_mant -= 1.0;
+        }
+        else
+        {
+            fp_mantisa.push('0');
+        }
     }
 
-    //who likes compile time errors anyway
-    String::new()
+    let mut fp_sign: String = String::new();
 
+    if *num >= 0.0
+    {
+        fp_sign.push('0');
+    }
+    else
+    {
+        fp_sign.push('1');
+    }
+
+
+    //return
+    let real_exp: String = int_to_bin(&((&fp_exponent) + offset));
+
+    fp_sign + &real_exp[2..] + &fp_mantisa
 }
+
+// function to set bit by index and value
+fn set_number_sign(number: &i32, index: i32, value: i32) 
+{
+    //make sure the user didn't try to pass the mask by mistake
+    assert!((value == 1) || (value == 0));
+
+    //make a mask
+    let mask: i32 = 0 | ((value) << index);
+
+    //modify target
+    let temp = (*number) | mask;
+    let number = temp | mask;
+}
+
 // -------------------------------------------------------------------
+
 
 
 
@@ -421,8 +479,84 @@ fn int_to_single_precision(num: &f32) -> String
 #[allow(dead_code)]
 fn main() 
 {
-    let n: i32 = 43096;
-    println!("{}", int_to_hex(&n));
+    let input: InputObj = parse_input(std::env::args().nth(1).unwrap());
+    let temp_val = extract_value(&input);
+
+    match input.m_type 
+    {
+        InputType::BIN => 
+        {
+            println!("Recieved binary input\n");
+
+            println!("Binary format: ");
+            println!("{}\n", int_to_bin(&(temp_val as i32)));
+
+            println!("Hexadecimal format: ");
+            println!("{}\n", int_to_hex(&(temp_val as i32)));
+
+            println!("Floating point format: ");
+            println!("{}\n", float_to_single_precision(&(temp_val)));
+
+            println!("Integer format: ");
+            println!("{}\n", temp_val);
+  
+        }
+
+        InputType::HEX => 
+        {
+            println!("Recieved hexadecimal input\n");
+
+            println!("Binary format: ");
+            println!("{}\n", int_to_bin(&(temp_val as i32)));
+
+            println!("Hexadecimal format: ");
+            println!("{}\n", int_to_hex(&(temp_val as i32)));
+
+            println!("Floating point format: ");
+            println!("{}\n", float_to_single_precision(&(temp_val)));
+
+            println!("Integer format: ");
+            println!("{}\n", temp_val);
+        }
+
+        InputType::FLT => 
+        {
+            println!("Recieved float input");
+
+            println!("Binary format (rounded integer): ");
+            println!("{}\n", int_to_bin(&(temp_val as i32)));
+
+            println!("Hexadecimal format (rounded integer): ");
+            println!("{}\n", int_to_hex(&(temp_val as i32)));
+
+            println!("Floating point format: ");
+            println!("{}\n", float_to_single_precision(&(temp_val)));
+
+            println!("Integer format (rounded integer): ");
+            println!("{}\n", temp_val as i32);
+
+        }
+
+        InputType::INT => 
+        {
+            println!("Recieved signed integer input");
+
+            println!("Binary format: ");
+            println!("{}\n", int_to_bin(&(temp_val as i32)));
+
+            println!("Hexadecimal format: ");
+            println!("{}\n", int_to_hex(&(temp_val as i32)));
+
+            println!("Floating point format: ");
+            println!("{}\n", float_to_single_precision(&(temp_val)));
+
+
+        }
+        _ => 
+        {
+
+        }
+    }
 }
 // -------------------------------------------------------------------
 
